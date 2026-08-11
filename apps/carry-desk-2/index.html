@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carry Desk</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; padding: 16px; background: #0a0e27; color: #e0e6ed; line-height: 1.5; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { margin: 0 0 20px 0; font-size: 24px; }
+    h2 { font-size: 16px; margin: 16px 0 12px 0; font-weight: 600; }
+    .status-banner { padding: 12px 16px; margin-bottom: 16px; border-radius: 6px; font-size: 14px; }
+    .status-ok { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-partial { background: rgba(251, 146, 60, 0.15); border: 1px solid rgba(251, 146, 60, 0.3); }
+    .status-stale { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .status-error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .status-line { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; margin-top: 8px; }
+    .status-field { white-space: nowrap; }
+    .errors-panel { margin-top: 12px; padding: 8px 12px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; }
+    .errors-toggle { cursor: pointer; font-weight: 600; user-select: none; }
+    .errors-list { display: none; margin-top: 8px; font-size: 12px; font-family: monospace; }
+    .errors-list.open { display: block; }
+    .error-entry { margin-bottom: 6px; padding: 4px; background: rgba(0, 0, 0, 0.5); border-radius: 3px; }
+    .settings-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 16px; font-size: 13px; }
+    .setting-group { display: flex; gap: 8px; align-items: center; }
+    .setting-label { font-weight: 600; }
+    input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: #e0e6ed; padding: 6px 8px; border-radius: 4px; font-size: 13px; }
+    input:focus { outline: none; border-color: rgba(59, 130, 246, 0.5); }
+    select { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); color: #e0e6ed; padding: 6px 8px; border-radius: 4px; font-size: 13px; }
+    select:focus { outline: none; border-color: rgba(59, 130, 246, 0.5); }
+    .ref-code-display { font-family: monospace; font-size: 12px; margin: 8px 0; padding: 8px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; }
+    .ref-code-status { font-size: 12px; margin-top: 4px; }
+    .ref-code-valid { color: #22c55e; }
+    .ref-code-invalid { color: #ef4444; }
+    .ref-code-empty { color: #94a3b8; }
+    .ref-code-url { font-family: monospace; font-size: 11px; color: #3b82f6; word-break: break-all; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    thead { background: rgba(255, 255, 255, 0.05); }
+    th, td { padding: 10px 8px; text-align: right; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    th { font-weight: 600; }
+    td:first-child, th:first-child { text-align: left; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-weight: 600; font-size: 12px; }
+    .badge-s { background: rgba(168, 85, 247, 0.3); color: #d8b4fe; }
+    .badge-a { background: rgba(34, 197, 94, 0.3); color: #86efac; }
+    .badge-b { background: rgba(59, 130, 246, 0.3); color: #93c5fd; }
+    .badge-c { background: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+    .excluded-panel { margin: 16px 0; padding: 12px 16px; background: rgba(0, 0, 0, 0.3); border-radius: 6px; }
+    .excluded-count { font-weight: 600; margin-bottom: 8px; }
+    .excluded-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; font-size: 12px; }
+    .excluded-item { padding: 6px 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+    .excluded-coin { font-weight: 600; }
+    .excluded-reason { color: #94a3b8; font-size: 11px; margin-top: 2px; }
+    .composer { margin: 20px 0; padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; }
+    .composer h3 { margin: 0 0 12px 0; font-size: 14px; }
+    .composer-select { margin-bottom: 12px; }
+    .composer-select select { padding: 8px; font-size: 13px; }
+    .draft-block { margin: 12px 0; padding: 12px 16px; background: rgba(0, 0, 0, 0.2); border-left: 3px solid rgba(59, 130, 246, 0.5); border-radius: 4px; }
+    .draft-content { font-family: monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; margin-bottom: 8px; }
+    .draft-stats { font-size: 11px; color: #94a3b8; margin-bottom: 8px; }
+    .draft-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    button { padding: 6px 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #93c5fd; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    button:hover { background: rgba(59, 130, 246, 0.3); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+    .checkbox-label { font-size: 12px; cursor: pointer; }
+    .draft-title { font-weight: 600; margin-bottom: 8px; font-size: 13px; }
+    .draft-wrapper { margin-bottom: 20px; }
+    .post-log { margin-top: 16px; padding: 12px 16px; background: rgba(0, 0, 0, 0.3); border-radius: 6px; }
+    .post-log h4 { margin: 0 0 8px 0; font-size: 12px; }
+    .post-log-entry { font-size: 11px; padding: 4px 0; font-family: monospace; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Carry Desk</h1>
+  <div id="statusBanner" class="status-banner status-ok"><div style="font-weight: 600;">Status: <span id="statusText">—</span></div><div class="status-line"><div class="status-field">fetched <span id="fetchedAtText">—</span></div><div class="status-field">markets <span id="marketCountText">—</span></div><div class="status-field">ok <span id="okCountText">—</span></div><div class="status-field">failed <span id="failedCountText">—</span></div><div class="status-field">requests <span id="totalRequestsText">—</span></div><div class="status-field">shape <span id="metaShapeText">—</span></div><div class="status-field">source <span id="metaSourceText">—</span></div><div class="status-field">universe <span id="universeLengthText">—</span></div></div><div id="errorsPanel" class="errors-panel" style="display: none;"><div class="errors-toggle" onclick="document.getElementById('errorsList').classList.toggle('open')">▸ errors</div><div id="errorsList" class="errors-list"></div></div></div>
+  <div class="settings-row"><div class="setting-group"><span class="setting-label">size (USD):</span><input type="number" id="sizeUsd" value="10000" min="100" step="100" style="width: 100px;"></div><div class="setting-group"><span class="setting-label">fee (%):</span><input type="number" id="feeRoundTripPct" value="0.1" min="0.01" step="0.01" style="width: 80px;"></div><div class="setting-group"><span class="setting-label">ref code:</span><input type="text" id="referralCode" placeholder="xxxxxxxx-BNKR" maxlength="14" style="width: 120px;"></div><div class="setting-group"><span class="setting-label">UI:</span><select id="uiLanguage" style="width: 60px;"><option value="en">EN</option><option value="ja">日本語</option></select></div><div class="setting-group"><span class="setting-label">post:</span><select id="postLanguage" style="width: 60px;"><option value="en">EN</option><option value="ja">日本語</option></select></div></div>
+  <div id="refCodeSection" style="margin-bottom: 16px;"><div class="ref-code-display"><div id="refCodeValue" style="font-family: monospace;">—</div><div id="refCodeStatus" class="ref-code-status ref-code-empty" style="margin-top: 4px;">—</div><div id="refCodeUrl" class="ref-code-url" style="margin-top: 4px;">—</div></div></div>
+  <div id="rankingContainer"></div><div id="excludedContainer"></div>
+  <div class="composer"><h3>composer</h3><div class="composer-select"><label>select market: <select id="marketSelect"><option>—</option></select></label></div><div id="draftsContainer"></div></div><div id="postLogContainer"></div>
+</div>
+<script>
+const i18n={en:{status_ok:'OK',status_partial:'PARTIAL',status_error:'ERROR',status_stale:'STALE',valid_ref:'✓ valid',invalid_ref:'✗ invalid',empty_ref:'(empty)',ref_url:'https://bankr.bot/terminal?refCode=',coin:'coin',grade:'grade',carry_score:'carry',apr_7d:'apr7d %',positive_share:'pos% 7d',breakeven_hours:'bh',spot_depth:'spot depth',perp_depth:'perp depth',day_volume:'vol 24h',excluded_count:n=>n===0?'no exclusions':`${n} excluded`,draft_reason_null:'snapshot is stale or required field is null',char_count:'chars',weighted_count:'weighted',mark_published:'mark as published (self-reported)',post_log_title:'post log',post_log_empty:'(empty)'},ja:{status_ok:'OK',status_partial:'PARTIAL',status_error:'ERROR',status_stale:'STALE',valid_ref:'✓ 有効',invalid_ref:'✗ 無効',empty_ref:'(未入力)',ref_url:'https://bankr.bot/terminal?refCode=',coin:'コイン',grade:'グレード',carry_score:'キャリー',apr_7d:'年率%',positive_share:'ポジ率%',breakeven_hours:'分岐点時間',spot_depth:'スポット深さ',perp_depth:'パープ深さ',day_volume:'24h出来高',excluded_count:n=>n===0?'除外なし':`${n}件除外`,draft_reason_null:'スナップショットが古いか必須フィールドがありません',char_count:'文字',weighted_count:'加重',mark_published:'メモとして公開済みにマーク (自己報告)',post_log_title:'ポストログ',post_log_empty:'(空)'}};
+let uiLang='en',postLang='en',snapshot=null,meta=null,ranking=null;let settings={sizeUsd:10000,feeRoundTripPct:.1,referralCode:'',uiLanguage:'en',postLanguage:'en'};let postLog=[];const t=(k,...a)=>{const x=i18n[uiLang]?.[k];return typeof x==='function'?x(...a):x||k};
+async function loadState(){try{const state=await bankr.invokeScript('readState',{});snapshot=state?.snapshot||null;meta=state?.meta||null;ranking=state?.ranking||null;settings=state?.settings||settings;postLog=await bankr.appKV.get('post_log')||[]}catch(e){settings=JSON.parse(localStorage.getItem('carry_desk_settings')||JSON.stringify(settings));postLog=JSON.parse(localStorage.getItem('carry_desk_post_log')||'[]')}uiLang=settings?.uiLanguage||'en';postLang=settings?.postLanguage||'en';document.getElementById('uiLanguage').value=uiLang;document.getElementById('postLanguage').value=postLang;document.getElementById('sizeUsd').value=settings.sizeUsd;document.getElementById('feeRoundTripPct').value=settings.feeRoundTripPct;document.getElementById('referralCode').value=settings.referralCode||'';render()}
+function saveSettings(){settings={sizeUsd:parseFloat(document.getElementById('sizeUsd').value)||10000,feeRoundTripPct:parseFloat(document.getElementById('feeRoundTripPct').value)||.1,referralCode:document.getElementById('referralCode').value.trim().toUpperCase(),uiLanguage:document.getElementById('uiLanguage').value,postLanguage:document.getElementById('postLanguage').value};uiLang=settings.uiLanguage;postLang=settings.postLanguage;localStorage.setItem('carry_desk_settings',JSON.stringify(settings));bankr.invokeScript('updateSettings',{settings}).catch(()=>{});render()}
+function validateRefCode(c){return/^[a-zA-Z0-9]{8}-BNKR$/.test(c)}function updateRefCodeDisplay(){const c=document.getElementById('referralCode').value.trim().toUpperCase(),d=document.getElementById('refCodeValue'),s=document.getElementById('refCodeStatus'),u=document.getElementById('refCodeUrl');if(!c){d.textContent='—';s.textContent=t('empty_ref');s.className='ref-code-status ref-code-empty';u.textContent='—';return}const v=validateRefCode(c);d.textContent=c;s.textContent=v?t('valid_ref'):t('invalid_ref');s.className=v?'ref-code-status ref-code-valid':'ref-code-status ref-code-invalid';u.textContent=v?t('ref_url')+c:'—'}
+function renderStatusBanner(){const b=document.getElementById('statusBanner'),st=document.getElementById('statusText');let s='ERROR';if(meta&&meta.status==='OK')s='OK';else if(meta&&meta.status==='PARTIAL')s='PARTIAL';if(snapshot&&Date.now()-snapshot.fetchedAt>3*3600000)s='STALE';b.className=`status-banner status-${s.toLowerCase()}`;st.textContent=t(`status_${s.toLowerCase()}`);if(meta){for(const [id,v] of Object.entries({fetchedAtText:new Date(meta.fetchedAt).toISOString().slice(0,19)+' UTC',marketCountText:meta.marketCount||'—',okCountText:meta.okCount||'—',failedCountText:meta.failedCount||'—',totalRequestsText:meta.totalRequests||'—',metaShapeText:meta.metaShape||'—',metaSourceText:meta.metaSource||'—',universeLengthText:meta.universeLength||'—'}))document.getElementById(id).textContent=v}const ep=document.getElementById('errorsPanel');if(snapshot?.errors?.length){ep.style.display='block';document.getElementById('errorsList').innerHTML=snapshot.errors.slice(0,5).map(e=>`<div class="error-entry"><strong>${e.stage}:</strong> ${e.message}</div>`).join('')}else ep.style.display='none'}
+function renderRanking(){const c=document.getElementById('rankingContainer');if(!ranking||!ranking.rows?.length){c.innerHTML='<p>no ranked markets</p>';return}let h=`<h2>ranking (${ranking.rows.length})</h2><table><thead><tr><th>${t('coin')}</th><th>${t('grade')}</th><th>${t('carry_score')}</th><th>${t('apr_7d')}</th><th>${t('positive_share')}</th><th>${t('breakeven_hours')}</th><th>${t('spot_depth')}</th><th>${t('perp_depth')}</th><th>${t('day_volume')}</th></tr></thead><tbody>`;ranking.rows.forEach(r=>{h+=`<tr><td>${r.coin}</td><td><span class="badge badge-${r.grade.toLowerCase()}">${r.grade}</span></td><td>${r.carryScore?r.carryScore.toFixed(1):'—'}</td><td>${r.apr7dAnnualizedPct?r.apr7dAnnualizedPct.toFixed(2):'—'}</td><td>${r.positiveShare7d?(r.positiveShare7d*100).toFixed(1):'—'}</td><td>${r.hoursToBreakeven?r.hoursToBreakeven.toFixed(1):'—'}</td><td>${r.spotDepthUsd?'$'+(r.spotDepthUsd/1e6).toFixed(2)+'M':'—'}</td><td>${r.perpDepthUsd?'$'+(r.perpDepthUsd/1e6).toFixed(2)+'M':'—'}</td><td>${r.dayVolume?'$'+(r.dayVolume/1e6).toFixed(2)+'M':'—'}</td></tr>`});c.innerHTML=h+'</tbody></table>'}
+function renderExcluded(){const c=document.getElementById('excludedContainer');if(!ranking?.excluded?.length){c.innerHTML='';return}let h=`<div class="excluded-panel"><div class="excluded-count">${t('excluded_count',ranking.excluded.length)}</div><div class="excluded-list>`;ranking.excluded.forEach(e=>h+=`<div class="excluded-item"><div class="excluded-coin">${e.coin}</div><div class="excluded-reason">${e.reason}</div></div>`);c.innerHTML=h+'</div>'}
+function renderComposer(){const s=document.getElementById('marketSelect');s.innerHTML='<option value="">—</option>';(ranking?.rows||[]).forEach(r=>{const o=document.createElement('option');o.value=r.coin;o.textContent=r.coin;s.appendChild(o)});s.onchange=()=>renderDrafts(s.value);renderDrafts('')}
+function weighted(s){return[...String(s||'')].reduce((n,c)=>n+(c.codePointAt(0)>255?2:1),0)}function renderDrafts(coin){const c=document.getElementById('draftsContainer');if(!coin){c.innerHTML='';return}const r=ranking.rows.find(x=>x.coin===coin);if(!r){c.innerHTML='<p>market not found</p>';return}const ok=snapshot&&!((Date.now()-snapshot.fetchedAt)>3*3600000)&&r.apr7dAnnualizedPct!==null&&r.positiveShare7d!==null&&r.hoursToBreakeven!==null&&r.spotDepthUsd!==null&&r.perpDepthUsd!==null;if(!ok){c.innerHTML=`<div style="color:#ef4444;padding:12px;background:rgba(239,68,68,.1);border-radius:4px;">${t('draft_reason_null')}</div>`;return}const d=new Date(snapshot.fetchedAt).toISOString().slice(0,10),cur=(r.apr7dAnnualizedPct/8760).toFixed(4),mean=r.apr7dAnnualizedPct&&r.positiveShare7d?(r.apr7dAnnualizedPct/8760/r.positiveShare7d).toFixed(4):'—',apr=r.apr7dAnnualizedPct.toFixed(2),approx=((r.apr7dAnnualizedPct||0)/8760).toFixed(4),share=(r.positiveShare7d*100).toFixed(0),bh=r.hoursToBreakeven?r.hoursToBreakeven.toFixed(1):'—',fee=settings.feeRoundTripPct.toFixed(2),ref=validateRefCode(settings.referralCode)?`https://bankr.bot/terminal?refCode=${settings.referralCode}`:'https://bankr.bot';const draft=postLang==='en'?`${d} utc / ${coin}: hourly funding ${cur}%, 7d mean ${mean}%, annualized ${apr}%\na rounded hourly display can read 0 while the annualized figure is positive. the implied hourly rate is about ${approx}%.\npositive-hour share is ${share}%. at ${fee}% round-trip cost, breakeven is about ${bh} hours. persistence decides this.\nfunding can flip. this is realized history, not a forecast. delta-neutral is not without risk. not advice. i'm in this trade.\ncarry desk. ref: ${ref}`:`${d} UTC / ${coin}: 毎時資金調達率 ${cur}%、7日平均 ${mean}%、年率換算 ${apr}%\n毎時表示が丸めで0%に見えても年率換算が正になる場合がある。年率と8760回の支払いから逆算した毎時率は約${approx}%。\n直近のプラス時間率は${share}%。往復コスト${fee}%なら損益分岐は資金調達約${bh}時間分。効くのは表面利率より継続性。\n資金調達率は反転する。これは実現した履歴で予測ではない。デルタニュートラルにも危険あり。投資助言ではない。ポジション・トーク。\nCarry Desk。紹介リンク: ${ref}`;const w=weighted(draft),fold=postLang==='en'?280:140;let n=0,out='';for(const ch of draft){n+=ch.codePointAt(0)>255?2:1;out+=ch;if(n>=fold){out+='\n'+(postLang==='en'?'← 280-char fold (EN)':'← 140-char fold (日本語)');break}}c.innerHTML=`<div class="draft-wrapper"><div class="draft-title">${postLang.toUpperCase()}</div><div class="draft-block"><div class="draft-content">${out}</div><div class="draft-stats">${draft.length} ${t('char_count')} / ${w} ${t('weighted_count')}</div><div class="draft-buttons"><button onclick="openIntent('${coin}','${postLang}')">intent</button><button onclick="copyToClipboard('${coin}','${postLang}')">copy</button></div></div></div>`;window.currentDraft=draft}
+function openIntent(coin,lang){window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(window.currentDraft||'')}`,'_blank');logPost('intent_opened',coin,lang,window.currentDraft||'')}function copyToClipboard(coin,lang){navigator.clipboard.writeText(window.currentDraft||'').then(()=>logPost('copied',coin,lang,window.currentDraft||''))}function logPost(event,coin,lang,text){postLog.push({event,lang,coin,text,at:Date.now()});localStorage.setItem('carry_desk_post_log',JSON.stringify(postLog));bankr.invokeScript('logPost',{event,coin,lang,text}).catch(()=>{});renderPostLog()}function renderPostLog(){const c=document.getElementById('postLogContainer');c.innerHTML=`<div class="post-log"><h4>${t('post_log_title')}</h4>${postLog.length?postLog.slice(-10).map(e=>`<div class="post-log-entry">[${new Date(e.at).toISOString()}] ${e.event} / ${e.coin} / ${e.lang}</div>`).join(''):`<p>${t('post_log_empty')}</p>`}</div>`}function render(){updateRefCodeDisplay();renderStatusBanner();renderRanking();renderExcluded();renderComposer();renderPostLog()}
+['sizeUsd','feeRoundTripPct','uiLanguage','postLanguage'].forEach(id=>document.getElementById(id).onchange=saveSettings);document.getElementById('referralCode').oninput=updateRefCodeDisplay;document.getElementById('referralCode').onchange=saveSettings;loadState();setInterval(loadState,30000);
+</script>
+</body>
+</html>
