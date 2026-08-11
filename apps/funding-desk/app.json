@@ -1,0 +1,1 @@
+{"slug":"funding-desk","title":"Funding Desk","description":"A delta-neutral Hyperliquid funding monitor with persistence-first screening, breakeven math, position-risk checks, alerts, and chat handoff.","version":23,"visibility":"public","scripts":["refreshFunding","readSnapshot","generatePostBatch","readPostBatch","__noop"],"source":"Bankr App"}
