@@ -1,0 +1,1 @@
+{"slug":"carry-desk","title":"Carry Desk","description":"private Hyperliquid perp funding monitor and delta-neutral carry research desk. not investment advice.","version":4,"visibility":"private","scripts":["refreshFunding","readSnapshot","generatePostBatch","probeHl"],"source":"Bankr App"}
