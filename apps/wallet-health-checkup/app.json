@@ -1,0 +1,1 @@
+{"slug":"wallet-health-checkup","title":"ウォレット健康診断","description":"日本の病院の健康診断書風にウォレットのポートフォリオ健康状態をリアルタイムで診断するアプリ。","version":1,"visibility":"public","scripts":["checkWallet"],"source":"Bankr App"}
