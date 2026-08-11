@@ -1,0 +1,1 @@
+{"slug":"bnkr-leaderboard-live","title":"BNKR Leaderboard Live","description":"A real-time sports-commentary-style dashboard showing the Bankr Club leaderboard top 20 with live Japanese commentary, rank change indicators, and horizontal marquee ticker.","version":2,"visibility":"public","scripts":["refreshLeaderboard"],"source":"Bankr App"}
